@@ -4609,6 +4609,9 @@ public class Launcher extends Activity
             mWorkspace.getUniqueComponents(true, null);
             mIntentsOnWorkspaceFromUpgradePath = mWorkspace.getUniqueComponents(true, null);
         }
+        
+        updateGlobalIcons(); 
+       
         PackageInstallerCompat.getInstance(this).onFinishBind();
         mModel.recheckRestoredItems(this);
     }

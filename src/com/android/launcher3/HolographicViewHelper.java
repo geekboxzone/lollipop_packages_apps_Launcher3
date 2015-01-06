@@ -52,7 +52,8 @@ public class HolographicViewHelper {
             FastBitmapDrawable hotwordD = new FastBitmapDrawable(hotword);
 
             StateListDrawable states = new StateListDrawable();
-
+            
+            states.setBounds(originalD.getBounds());
             states.addState(new int[] {android.R.attr.state_pressed}, outlineD);
             states.addState(new int[] {android.R.attr.state_focused}, outlineD);
             states.addState(new int[] {R.attr.stateHotwordOn}, hotwordD);
