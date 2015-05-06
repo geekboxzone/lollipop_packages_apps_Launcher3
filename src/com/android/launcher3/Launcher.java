@@ -241,7 +241,7 @@ public class Launcher extends Activity
     private static int NEW_APPS_PAGE_MOVE_DELAY = 500;
     private static int NEW_APPS_ANIMATION_INACTIVE_TIMEOUT_SECONDS = 5;
     private static int NEW_APPS_ANIMATION_DELAY = 500;
-    private static final int SINGLE_FRAME_DELAY = 16;
+    private static final int SINGLE_FRAME_DELAY = 0;
 
     private final BroadcastReceiver mCloseSystemDialogsReceiver
             = new CloseSystemDialogsIntentReceiver();
@@ -3421,11 +3421,11 @@ public class Launcher extends Activity
                 layerViews.add(page);
 
                 ObjectAnimator pageDrift = ObjectAnimator.ofFloat(page, "translationY", yDrift, 0);
-                page.setTranslationY(yDrift);
+                page.setTranslationY(0);
                 pageDrift.setDuration(revealDuration);
                 pageDrift.setInterpolator(new LogDecelerateInterpolator(100, 0));
                 pageDrift.setStartDelay(itemsAlphaStagger);
-                mStateAnimation.play(pageDrift);
+              //  mStateAnimation.play(pageDrift);
 
                 page.setAlpha(0f);
                 ObjectAnimator itemsAlpha = ObjectAnimator.ofFloat(page, "alpha", 0f, 1f);
@@ -3436,11 +3436,12 @@ public class Launcher extends Activity
             }
 
             View pageIndicators = toView.findViewById(R.id.apps_customize_page_indicator);
-            pageIndicators.setAlpha(0.01f);
+            //pageIndicators.setAlpha(0.01f);
+            pageIndicators.setAlpha(1f);
             ObjectAnimator indicatorsAlpha =
                     ObjectAnimator.ofFloat(pageIndicators, "alpha", 1f);
             indicatorsAlpha.setDuration(revealDuration);
-            mStateAnimation.play(indicatorsAlpha);
+            //mStateAnimation.play(indicatorsAlpha);
 
             if (material) {
                 final View allApps = getAllAppsButton();
@@ -3665,7 +3666,7 @@ public class Launcher extends Activity
                 panelDriftX.setDuration(revealDuration - SINGLE_FRAME_DELAY);
                 panelDriftX.setStartDelay(itemsAlphaStagger + SINGLE_FRAME_DELAY);
                 panelDriftX.setInterpolator(decelerateInterpolator);
-                mStateAnimation.play(panelDriftX);
+              //  mStateAnimation.play(panelDriftX);
 
                 if (isWidgetTray || !material) {
                     float finalAlpha = material ? 0.4f : 0f;
@@ -3683,26 +3684,27 @@ public class Launcher extends Activity
 
                     ObjectAnimator pageDrift = LauncherAnimUtils.ofFloat(page, "translationY",
                             0, yDrift);
-                    page.setTranslationY(0);
+                 //   page.setTranslationY(0);
                     pageDrift.setDuration(revealDuration - SINGLE_FRAME_DELAY);
                     pageDrift.setInterpolator(decelerateInterpolator);
                     pageDrift.setStartDelay(itemsAlphaStagger + SINGLE_FRAME_DELAY);
-                    mStateAnimation.play(pageDrift);
+                 //   mStateAnimation.play(pageDrift);
 
                     page.setAlpha(1f);
                     ObjectAnimator itemsAlpha = LauncherAnimUtils.ofFloat(page, "alpha", 1f, 0f);
-                    itemsAlpha.setDuration(100);
+                    itemsAlpha.setDuration(/*100*/60);
                     itemsAlpha.setInterpolator(decelerateInterpolator);
                     mStateAnimation.play(itemsAlpha);
                 }
 
                 View pageIndicators = fromView.findViewById(R.id.apps_customize_page_indicator);
-                pageIndicators.setAlpha(1f);
+              //  pageIndicators.setAlpha(1f);
+                pageIndicators.setAlpha(0f);
                 ObjectAnimator indicatorsAlpha =
                         LauncherAnimUtils.ofFloat(pageIndicators, "alpha", 0f);
                 indicatorsAlpha.setDuration(revealDuration);
                 indicatorsAlpha.setInterpolator(new DecelerateInterpolator(1.5f));
-                mStateAnimation.play(indicatorsAlpha);
+              //  mStateAnimation.play(indicatorsAlpha);
 
                 width = revealView.getMeasuredWidth();
 
