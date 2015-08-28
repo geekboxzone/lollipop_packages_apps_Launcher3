@@ -84,7 +84,7 @@ import java.util.TreeMap;
  */
 public class LauncherModel extends BroadcastReceiver
         implements LauncherAppsCompat.OnAppsChangedCallbackCompat {
-    static final boolean DEBUG_LOADERS = false;
+    static final boolean DEBUG_LOADERS = true;
     private static final boolean DEBUG_RECEIVER = false;
     private static final boolean REMOVE_UNRESTORED_ICONS = true;
     private static final boolean ADD_MANAGED_PROFILE_SHORTCUTS = false;
@@ -1996,7 +1996,7 @@ public class LauncherModel extends BroadcastReceiver
                                                 cn.getPackageName(), user);
                                         boolean validComponent = validPkg &&
                                                 launcherApps.isActivityEnabledForProfile(cn, user);
-
+                                        Log.d("cw", "pkg:" + cn.getPackageName() + " validPkg=" + validPkg + " validComponent=" + validComponent);
                                         if (validComponent) {
                                             if (restored) {
                                                 // no special handling necessary for this item
@@ -2949,6 +2949,7 @@ public class LauncherModel extends BroadcastReceiver
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log.d("cw", "onReceive");
             synchronized (sBgLock) {
                 final LauncherAppsCompat launcherApps = LauncherAppsCompat
                         .getInstance(mApp.getContext());
@@ -2960,6 +2961,7 @@ public class LauncherModel extends BroadcastReceiver
                     packagesRemoved.clear();
                     packagesUnavailable.clear();
                     for (String pkg : entry.getValue()) {
+                        Log.d("cw", "pkg:" + pkg);
                         if (!launcherApps.isPackageEnabledForProfile(pkg, user)) {
                             boolean packageOnSdcard = launcherApps.isAppEnabled(
                                     manager, pkg, PackageManager.GET_UNINSTALLED_PACKAGES);

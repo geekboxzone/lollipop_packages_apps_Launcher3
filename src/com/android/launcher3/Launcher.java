@@ -216,6 +216,8 @@ public class Launcher extends Activity
 
     public static final String USER_HAS_MIGRATED = "launcher.user_migrated_from_old_data";
 
+    private boolean runOnce = false;
+
     /** The different states that Launcher can be in. */
     private enum State { NONE, WORKSPACE, APPS_CUSTOMIZE, APPS_CUSTOMIZE_SPRING_LOADED };
     private State mState = State.WORKSPACE;
@@ -1888,6 +1890,10 @@ public class Launcher extends Activity
                     }
                 }else{
                     mModel.startLoaderApp(true, mWorkspace!=null ? mWorkspace.getCurrentPage() : 0);
+                    if(!runOnce) {
+                        runOnce = true;
+                        mModel.startLoader(true, mWorkspace.getRestorePage());
+                    }
                     mHandler.sendEmptyMessageDelayed(LOADER_MSG, 1000);
                 }
                 break;

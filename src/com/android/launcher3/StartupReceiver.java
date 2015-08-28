@@ -3,6 +3,7 @@ package com.android.launcher3;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 public class StartupReceiver extends BroadcastReceiver {
 
@@ -10,6 +11,11 @@ public class StartupReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        context.sendStickyBroadcast(new Intent(SYSTEM_READY));
+        CharSequence isPrescan = intent.getExtras().getCharSequence("com.android.pms.PRESCAN");
+        Log.d("cw", "haha,getExtra:" + isPrescan);
+        if (isPrescan != null && isPrescan.equals("true")) {
+            Log.d("cw", "haha,in");
+            context.sendStickyBroadcast(new Intent(SYSTEM_READY));
+        }
     }
 }

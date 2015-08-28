@@ -63,6 +63,7 @@ public class PackageInstallerCompatVL extends PackageInstallerCompat implements 
             @Override
             public void run() {
                 for (SessionInfo info : mInstaller.getAllSessions()) {
+                    Log.d("cw", "PckageInstallerCompatVL:mPendingReplays.append=" + info.getAppPackageName());
                     mPendingReplays.append(info.getSessionId(), info);
                 }
             }
