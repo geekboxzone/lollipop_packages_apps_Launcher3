@@ -316,7 +316,6 @@ public class Launcher extends Activity
 
     // Related to the auto-advancing of widgets
     private final int ADVANCE_MSG = 1;
-	private final int LOADER_MSG = ADVANCE_MSG + 1;
     private final int mAdvanceInterval = 20000;
     private final int mAdvanceStagger = 250;
     private long mAutoAdvanceSentTime;
@@ -454,7 +453,7 @@ public class Launcher extends Activity
             android.os.Debug.stopMethodTracing();
         }
 
-/*        if (!mRestoring) {
+        if (!mRestoring) {
             if (DISABLE_SYNCHRONOUS_BINDING_CURRENT_PAGE) {
                 // If the user leaves launcher, then we should just load items asynchronously when
                 // they return.
@@ -465,8 +464,6 @@ public class Launcher extends Activity
                 mModel.startLoader(true, mWorkspace.getRestorePage());
             }
         }
-*/
-		mHandler.sendEmptyMessageDelayed(LOADER_MSG, 1);
 		
         // For handling default keys
         mDefaultKeySsb = new SpannableStringBuilder();
@@ -1875,29 +1872,6 @@ public class Launcher extends Activity
                 }
                 sendAdvanceMessage(mAdvanceInterval);
 				break;
-			case LOADER_MSG:
-                boolean finish_scan = ("true".equals(SystemProperties.get("sys.pms.finishscan", "false")));
-                if (!mRestoring && finish_scan) {
-                    mHandler.removeMessages(LOADER_MSG);
-                    if (DISABLE_SYNCHRONOUS_BINDING_CURRENT_PAGE) {
-                        // If the user leaves launcher, then we should just load items asynchronously when
-                        // they return.
-                        mModel.startLoader(true, PagedView.INVALID_RESTORE_PAGE);
-                    } else {
-                        // We only load the page synchronously if the user rotates (or triggers a
-                        // configuration change) while launcher is in the foreground
-                        mModel.startLoader(true, mWorkspace.getRestorePage());
-                    }
-                }else{
-                    mModel.startLoaderApp(true, mWorkspace!=null ? mWorkspace.getCurrentPage() : 0);
-                    if(!runOnce) {
-                        runOnce = true;
-                        mModel.startLoader(true, mWorkspace.getRestorePage());
-                    }
-                    mHandler.sendEmptyMessageDelayed(LOADER_MSG, 1000);
-                }
-                break;
-				
             }
         }
     };

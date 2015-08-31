@@ -2229,7 +2229,7 @@ public class LauncherModel extends BroadcastReceiver
                                         : findAppWidgetProviderInfoWithComponent(context, component);
 
                                 final boolean isProviderReady = isValidProvider(provider);
-                                if (!isSafeMode && wasProviderReady && !isProviderReady) {
+                                if (!isSafeMode && wasProviderReady && !isProviderReady && isSdCardReady) {
                                     String log = "Deleting widget that isn't installed anymore: "
                                             + "id=" + id + " appWidgetId=" + appWidgetId;
                                     Log.e(TAG, log);
@@ -2272,7 +2272,7 @@ public class LauncherModel extends BroadcastReceiver
                                             // App restore has started. Update the flag
                                             appWidgetInfo.restoreStatus |=
                                                     LauncherAppWidgetInfo.FLAG_RESTORE_STARTED;
-                                        } else if (REMOVE_UNRESTORED_ICONS && !isSafeMode) {
+                                        } else if (REMOVE_UNRESTORED_ICONS && !isSafeMode && isSdCardReady) {
                                             Launcher.addDumpLog(TAG,
                                                     "Unrestored widget removed: " + component, true);
                                             itemsToRemove.add(id);
