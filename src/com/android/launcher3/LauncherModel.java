@@ -59,6 +59,7 @@ import com.android.launcher3.compat.PackageInstallerCompat;
 import com.android.launcher3.compat.PackageInstallerCompat.PackageInstallInfo;
 import com.android.launcher3.compat.UserHandleCompat;
 import com.android.launcher3.compat.UserManagerCompat;
+import com.android.launcher3.NotificationController;
 
 import java.lang.ref.WeakReference;
 import java.net.URISyntaxException;

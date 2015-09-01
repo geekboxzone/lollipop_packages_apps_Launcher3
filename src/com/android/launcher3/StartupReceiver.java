@@ -1,5 +1,6 @@
 package com.android.launcher3;
 
+import com.android.launcher3.NotificationController;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +16,9 @@ public class StartupReceiver extends BroadcastReceiver {
         Log.d("cw", "haha,getExtra:" + isPrescan);
         if (isPrescan != null && isPrescan.equals("true")) {
             Log.d("cw", "haha,in");
+            if(NotificationController.hasNotification == true){
+                NotificationController.clearAllNotify(context);
+            }
             context.sendStickyBroadcast(new Intent(SYSTEM_READY));
         }
     }

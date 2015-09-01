@@ -66,6 +66,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.StrictMode;
 import android.os.SystemClock;
+import android.os.SystemProperties;
 import android.text.Selection;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -2627,6 +2628,14 @@ public class Launcher extends Activity
             showWorkspace(true);
         } else {
             showAllApps(true, AppsCustomizePagedView.ContentType.Applications, false);
+            if("false".equals(SystemProperties.get("sys.pms.finishscan", "false"))){
+                NotificationController.initNotify(this);
+                NotificationController.showNotify(this);
+            }else{
+                if(NotificationController.hasNotification == true){
+                    NotificationController.clearAllNotify(this);
+                }
+            }
         }
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onClickAllAppsButton(v);
