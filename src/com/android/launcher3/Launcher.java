@@ -322,7 +322,7 @@ public class Launcher extends Activity
 
     // Related to the auto-advancing of widgets
     private final int ADVANCE_MSG = 1;
-	private final int LOADER_MSG = ADVANCE_MSG + 1;
+    private final int LOADER_MSG = ADVANCE_MSG + 1;
     private final int mAdvanceInterval = 20000;
     private final int mAdvanceStagger = 250;
     private long mAutoAdvanceSentTime;
@@ -387,7 +387,7 @@ public class Launcher extends Activity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-		SystemProperties.set("persist.sys.root_launcher", "true");
+        SystemProperties.set("persist.sys.default_launcher", "com.android.launcher3");
         if (DEBUG_STRICT_MODE) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                     .detectDiskReads()
@@ -1874,8 +1874,8 @@ public class Launcher extends Activity
         @Override
         public void handleMessage(Message msg) {
             //if (msg.what == ADVANCE_MSG) {
-			switch(msg.what){
-			case ADVANCE_MSG:
+            switch(msg.what){
+            case ADVANCE_MSG:
                 int i = 0;
                 for (View key: mWidgetsToAdvance.keySet()) {
                     final View v = key.findViewById(mWidgetsToAdvance.get(key).autoAdvanceViewId);
@@ -1890,8 +1890,8 @@ public class Launcher extends Activity
                     i++;
                 }
                 sendAdvanceMessage(mAdvanceInterval);
-				break;
-			case LOADER_MSG:
+                break;
+            case LOADER_MSG:
                 if (!mRestoring && mPreScanFinished) {
                     mModel.startLoaderApp(true, mWorkspace!=null ? mWorkspace.getCurrentPage() : 0);
                     mHandler.removeMessages(LOADER_MSG);
@@ -1913,7 +1913,6 @@ public class Launcher extends Activity
                     mHandler.sendEmptyMessageDelayed(LOADER_MSG, 5000);
                 }
                 break;
-				
             }
         }
     };
@@ -4085,7 +4084,6 @@ public class Launcher extends Activity
     private class PreScanFinishedReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("cw", "Launcher got prescan finished! tid:" + Process.myTid());
             mPreScanFinished = true;
             if(NotificationController.hasNotification == true){
                 NotificationController.clearAllNotify(context);

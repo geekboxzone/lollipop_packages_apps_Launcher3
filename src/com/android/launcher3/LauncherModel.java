@@ -85,7 +85,7 @@ import java.util.TreeMap;
  */
 public class LauncherModel extends BroadcastReceiver
         implements LauncherAppsCompat.OnAppsChangedCallbackCompat {
-    static final boolean DEBUG_LOADERS = true;
+    static final boolean DEBUG_LOADERS = false;
     private static final boolean DEBUG_RECEIVER = false;
     private static final boolean REMOVE_UNRESTORED_ICONS = true;
     private static final boolean ADD_MANAGED_PROFILE_SHORTCUTS = false;
@@ -146,7 +146,7 @@ public class LauncherModel extends BroadcastReceiver
 
     // < only access in worker thread >
     AllAppsList mBgAllAppsList;
-	List<ResolveInfo> mOldApp = null;
+    List<ResolveInfo> mOldApp = null;
 
     // The lock that must be acquired before referencing any static bg data structures.  Unlike
     // other locks, this one can generally be held long-term because we never expect any of these
@@ -1997,7 +1997,7 @@ public class LauncherModel extends BroadcastReceiver
                                                 cn.getPackageName(), user);
                                         boolean validComponent = validPkg &&
                                                 launcherApps.isActivityEnabledForProfile(cn, user);
-                                        Log.d("cw", "pkg:" + cn.getPackageName() + " validPkg=" + validPkg + " validComponent=" + validComponent);
+
                                         if (validComponent) {
                                             if (restored) {
                                                 // no special handling necessary for this item
@@ -2950,7 +2950,6 @@ public class LauncherModel extends BroadcastReceiver
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("cw", "onReceive");
             synchronized (sBgLock) {
                 final LauncherAppsCompat launcherApps = LauncherAppsCompat
                         .getInstance(mApp.getContext());
@@ -2962,7 +2961,6 @@ public class LauncherModel extends BroadcastReceiver
                     packagesRemoved.clear();
                     packagesUnavailable.clear();
                     for (String pkg : entry.getValue()) {
-                        Log.d("cw", "pkg:" + pkg);
                         if (!launcherApps.isPackageEnabledForProfile(pkg, user)) {
                             boolean packageOnSdcard = launcherApps.isAppEnabled(
                                     manager, pkg, PackageManager.GET_UNINSTALLED_PACKAGES);

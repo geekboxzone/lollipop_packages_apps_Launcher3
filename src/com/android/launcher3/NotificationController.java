@@ -31,13 +31,13 @@ public class NotificationController{
     private static final int NOTIFICATION_ID = 1;
     private static Context mContext;
     public static boolean hasNotification = false;
-    
+
     private static NotificationCompat.Builder mBuilder;
     private static NotificationManager mNotificationManager;
 
 	public static void initNotify(Context mctx){
         if(DEBUG) Log.e(TAG, "initNotify");
-        
+
         mContext = mctx;
 		mBuilder = new NotificationCompat.Builder(mContext);
         mNotificationManager = (NotificationManager)mContext.getSystemService(Context.NOTIFICATION_SERVICE);
