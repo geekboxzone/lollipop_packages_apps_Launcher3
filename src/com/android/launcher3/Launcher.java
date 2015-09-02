@@ -64,6 +64,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Process;
 import android.os.StrictMode;
 import android.os.SystemClock;
 import android.os.SystemProperties;
@@ -249,7 +250,11 @@ public class Launcher extends Activity
 
     private final BroadcastReceiver mCloseSystemDialogsReceiver
             = new CloseSystemDialogsIntentReceiver();
+    private final BroadcastReceiver mPreScanFinishReceiver
+            = new PreScanFinishedReceiver();
     private final ContentObserver mWidgetObserver = new AppWidgetResetObserver();
+
+    private boolean mPreScanFinished = false;
 
     private LayoutInflater mInflater;
 
@@ -455,20 +460,30 @@ public class Launcher extends Activity
             android.os.Debug.stopMethodTracing();
         }
 
-/*        if (!mRestoring) {
-            if (DISABLE_SYNCHRONOUS_BINDING_CURRENT_PAGE) {
-                // If the user leaves launcher, then we should just load items asynchronously when
-                // they return.
-                mModel.startLoader(true, PagedView.INVALID_RESTORE_PAGE);
-            } else {
-                // We only load the page synchronously if the user rotates (or triggers a
-                // configuration change) while launcher is in the foreground
-                mModel.startLoader(true, mWorkspace.getRestorePage());
+        if ("false".equals(SystemProperties.get("sys.pms.finishscan", "unknown"))) {
+            // Register for prescan finish message
+            IntentFilter prescanFilter = new IntentFilter();
+            prescanFilter.addAction("com.android.prescan.FINISH");
+            registerReceiver(mPreScanFinishReceiver, prescanFilter);
+
+            NotificationController.initNotify(this);
+            NotificationController.showNotify(this);
+
+            mHandler.sendEmptyMessageDelayed(LOADER_MSG, 1);
+        } else {
+            if (!mRestoring) {
+                if (DISABLE_SYNCHRONOUS_BINDING_CURRENT_PAGE) {
+                    // If the user leaves launcher, then we should just load items asynchronously when
+                    // they return.
+                    mModel.startLoader(true, PagedView.INVALID_RESTORE_PAGE);
+                } else {
+                    // We only load the page synchronously if the user rotates (or triggers a
+                    // configuration change) while launcher is in the foreground
+                    mModel.startLoader(true, mWorkspace.getRestorePage());
+                }
             }
         }
-*/
-		mHandler.sendEmptyMessageDelayed(LOADER_MSG, 1);
-		
+
         // For handling default keys
         mDefaultKeySsb = new SpannableStringBuilder();
         Selection.setSelection(mDefaultKeySsb, 0);
@@ -1877,8 +1892,8 @@ public class Launcher extends Activity
                 sendAdvanceMessage(mAdvanceInterval);
 				break;
 			case LOADER_MSG:
-                boolean finish_scan = ("true".equals(SystemProperties.get("sys.pms.finishscan", "false")));
-                if (!mRestoring && finish_scan) {
+                if (!mRestoring && mPreScanFinished) {
+                    mModel.startLoaderApp(true, mWorkspace!=null ? mWorkspace.getCurrentPage() : 0);
                     mHandler.removeMessages(LOADER_MSG);
                     if (DISABLE_SYNCHRONOUS_BINDING_CURRENT_PAGE) {
                         // If the user leaves launcher, then we should just load items asynchronously when
@@ -1895,7 +1910,7 @@ public class Launcher extends Activity
                         runOnce = true;
                         mModel.startLoader(true, mWorkspace.getRestorePage());
                     }
-                    mHandler.sendEmptyMessageDelayed(LOADER_MSG, 1000);
+                    mHandler.sendEmptyMessageDelayed(LOADER_MSG, 5000);
                 }
                 break;
 				
@@ -2654,14 +2669,6 @@ public class Launcher extends Activity
             showWorkspace(true);
         } else {
             showAllApps(true, AppsCustomizePagedView.ContentType.Applications, false);
-            if("false".equals(SystemProperties.get("sys.pms.finishscan", "false"))){
-                NotificationController.initNotify(this);
-                NotificationController.showNotify(this);
-            }else{
-                if(NotificationController.hasNotification == true){
-                    NotificationController.clearAllNotify(this);
-                }
-            }
         }
         if (mLauncherCallbacks != null) {
             mLauncherCallbacks.onClickAllAppsButton(v);
@@ -4069,6 +4076,20 @@ public class Launcher extends Activity
         @Override
         public void onReceive(Context context, Intent intent) {
             closeSystemDialogs();
+        }
+    }
+
+    /**
+     * Receives notifications when system dialogs are to be closed.
+     */
+    private class PreScanFinishedReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("cw", "Launcher got prescan finished! tid:" + Process.myTid());
+            mPreScanFinished = true;
+            if(NotificationController.hasNotification == true){
+                NotificationController.clearAllNotify(context);
+            }
         }
     }
 
