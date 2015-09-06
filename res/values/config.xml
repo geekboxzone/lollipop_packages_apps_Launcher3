@@ -20,6 +20,8 @@
     <!-- App data backup and restore. To enble backup, register with an android backup service.
          http://developer.android.com/guide/topics/data/backup.html#BackupKey -->
     <bool name="enable_backup">false</bool>
+    
+    <bool name="use_lollipop_animate">false</bool>
 
 <!-- DragController -->
     <integer name="config_flingToDeleteMinVelocity">-1500</integer>
@@ -35,11 +37,13 @@
 
     <!-- Fade/zoom in/out duration & scale in the AllApps transition.
          Note: This should be less than the workspaceShrinkTime as they happen together. -->
-    <integer name="config_appsCustomizeRevealTime">220</integer>
+    <!-- <integer name="config_appsCustomizeRevealTime">220</integer> -->
+    <integer name="config_appsCustomizeRevealTime">100</integer>
     <integer name="config_appsCustomizeZoomInTime">350</integer>
     <integer name="config_appsCustomizeZoomOutTime">600</integer>
     <integer name="config_appsCustomizeZoomScaleFactor">7</integer>
-    <integer name="config_appsCustomizeFadeInTime">250</integer>
+    <!-- <integer name="config_appsCustomizeFadeInTime">250</integer> -->
+    <integer name="config_appsCustomizeFadeInTime">100</integer>
     <integer name="config_appsCustomizeFadeOutTime">200</integer>
     <integer name="config_appsCustomizeWorkspaceShrinkTime">300</integer>
 

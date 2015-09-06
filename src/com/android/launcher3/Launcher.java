@@ -134,6 +134,7 @@ public class Launcher extends Activity
         implements View.OnClickListener, OnLongClickListener, LauncherModel.Callbacks,
                    View.OnTouchListener, PageSwitchListener, LauncherProviderChangeListener {
     static final String TAG = "Launcher";
+    static final float ALL_APPS_ALPHA = 0f;
     static final boolean LOGD = false;
 
     static final boolean PROFILE_STARTUP = false;
@@ -2728,7 +2729,7 @@ public class Launcher extends Activity
 
         if (success && v instanceof BubbleTextView) {
             mWaitingForResume = (BubbleTextView) v;
-            mWaitingForResume.setStayPressed(true);
+            //mWaitingForResume.setStayPressed(true);
         }
     }
 
@@ -2939,9 +2940,11 @@ public class Launcher extends Activity
             }
 
             Bundle optsBundle = null;
+	    useLaunchAnimation = false;
             if (useLaunchAnimation) {
                 ActivityOptions opts = Utilities.isLmpOrAbove() ?
-                        ActivityOptions.makeCustomAnimation(this, R.anim.task_open_enter, R.anim.no_anim) :
+                        //ActivityOptions.makeCustomAnimation(this, R.anim.task_open_enter, R.anim.no_anim) :
+                        ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getMeasuredWidth(), v.getMeasuredHeight()) :
                         ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getMeasuredWidth(), v.getMeasuredHeight());
                 optsBundle = opts.toBundle();
             }
@@ -3325,9 +3328,9 @@ public class Launcher extends Activity
             mStateAnimation = null;
         }
 
-        boolean material = Utilities.isLmpOrAbove();
-
+        //boolean material = Utilities.isLmpOrAbove();
         final Resources res = getResources();
+        boolean material = res.getBoolean(R.bool.use_lollipop_animate) && Utilities.isLmpOrAbove();
 
         final int duration = res.getInteger(R.integer.config_appsCustomizeZoomInTime);
         final int fadeDuration = res.getInteger(R.integer.config_appsCustomizeFadeInTime);
@@ -3336,6 +3339,7 @@ public class Launcher extends Activity
                 res.getInteger(R.integer.config_appsCustomizeItemsAlphaStagger);
 
         final float scale = (float) res.getInteger(R.integer.config_appsCustomizeZoomScaleFactor);
+
         final View fromView = mWorkspace;
         final AppsCustomizeTabHost toView = mAppsCustomizeTabHost;
 
@@ -3401,7 +3405,7 @@ public class Launcher extends Activity
 
             revealView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
             layerViews.add(revealView);
-            PropertyValuesHolder panelAlpha = PropertyValuesHolder.ofFloat("alpha", initAlpha, 1f);
+            PropertyValuesHolder panelAlpha = PropertyValuesHolder.ofFloat("alpha", initAlpha, ALL_APPS_ALPHA);
             PropertyValuesHolder panelDriftY =
                     PropertyValuesHolder.ofFloat("translationY", yDrift, 0);
             PropertyValuesHolder panelDriftX =
@@ -3560,8 +3564,9 @@ public class Launcher extends Activity
             mStateAnimation = null;
         }
 
-        boolean material = Utilities.isLmpOrAbove();
+        //boolean material = Utilities.isLmpOrAbove();
         Resources res = getResources();
+        boolean material = res.getBoolean(R.bool.use_lollipop_animate) && Utilities.isLmpOrAbove();
 
         final int duration = res.getInteger(R.integer.config_appsCustomizeZoomOutTime);
         final int fadeOutDuration = res.getInteger(R.integer.config_appsCustomizeFadeOutTime);
@@ -3670,9 +3675,9 @@ public class Launcher extends Activity
 
                 if (isWidgetTray || !material) {
                     float finalAlpha = material ? 0.4f : 0f;
-                    revealView.setAlpha(1f);
+                    revealView.setAlpha(ALL_APPS_ALPHA);
                     ObjectAnimator panelAlpha = LauncherAnimUtils.ofFloat(revealView, "alpha",
-                            1f, finalAlpha);
+                            ALL_APPS_ALPHA, finalAlpha);
                     panelAlpha.setDuration(material ? revealDuration : 150);
                     panelAlpha.setInterpolator(decelerateInterpolator);
                     panelAlpha.setStartDelay(material ? 0 : itemsAlphaStagger + SINGLE_FRAME_DELAY);
@@ -3765,7 +3770,7 @@ public class Launcher extends Activity
                     if (page != null) {
                         page.setTranslationX(0);
                         page.setTranslationY(0);
-                        page.setAlpha(1);
+                        page.setAlpha(ALL_APPS_ALPHA);
                     }
                     content.setCurrentPage(content.getNextPage());
 

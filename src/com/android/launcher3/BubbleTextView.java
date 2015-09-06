@@ -32,6 +32,8 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 import android.widget.TextView;
+import android.view.animation.Animation;
+import android.view.animation.ScaleAnimation;
 
 /**
  * TextView that draws a bubble behind the text. We cannot use a LineBackgroundSpan
@@ -209,6 +211,11 @@ public class BubbleTextView extends TextView {
                 }
 
                 mLongPressHelper.postCheckForLongPress();
+
+                Animation an = new ScaleAnimation(0.75f, 1.0f, 0.75f, 1.0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                an.setDuration(150);
+                this.startAnimation(an);
+
                 break;
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
