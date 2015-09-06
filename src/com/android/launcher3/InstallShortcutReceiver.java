@@ -63,8 +63,8 @@ public class InstallShortcutReceiver extends BroadcastReceiver {
     // The set of shortcuts that are pending install
     private static final String APPS_PENDING_INSTALL = "apps_to_install";
 
-    public static final int NEW_SHORTCUT_BOUNCE_DURATION = 450;
-    public static final int NEW_SHORTCUT_STAGGER_DELAY = 85;
+    public static final int NEW_SHORTCUT_BOUNCE_DURATION = 150;
+    public static final int NEW_SHORTCUT_STAGGER_DELAY = 45;
 
     private static final Object sLock = new Object();
 

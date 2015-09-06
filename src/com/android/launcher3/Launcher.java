@@ -130,6 +130,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import android.os.SystemProperties;
 
+import android.provider.Settings;;
+
 /**
  * Default launcher application.
  */
@@ -445,7 +447,10 @@ public class Launcher extends Activity
         }
 
         checkForLocaleChange();
-        setContentView(R.layout.launcher);
+	if(0 != Settings.System.getInt(getContentResolver(), "multi_window_config", 0))
+	      setContentView(R.layout.launcher_win);
+	else
+              setContentView(R.layout.launcher);
 
         setupViews();
         grid.layout(this);
@@ -2145,6 +2150,7 @@ public class Launcher extends Activity
         }
 
         getContentResolver().unregisterContentObserver(mWidgetObserver);
+        getContentResolver().unregisterContentObserver(mMultiConfigObserver);
         unregisterReceiver(mCloseSystemDialogsReceiver);
 
         mDragLayer.clearAllResizeFrames();
@@ -2498,7 +2504,21 @@ public class Launcher extends Activity
         ContentResolver resolver = getContentResolver();
         resolver.registerContentObserver(LauncherProvider.CONTENT_APPWIDGET_RESET_URI,
                 true, mWidgetObserver);
+	//huangjc:multi_window
+	resolver.registerContentObserver(Settings.System.getUriFor("multi_window_config"),
+		false,mMultiConfigObserver);
     }
+
+    //huangjc:multi_window
+    private ContentObserver mMultiConfigObserver = new ContentObserver(new Handler()){
+	    @Override
+	    public void onChange(boolean selfChange) {
+		    final boolean isshow = 0 != Settings.System.getInt(
+				    getContentResolver(), "multi_window_config", 0);
+		    Log.d("hjc","=====mMultiConfigObserver====mHotseat:"+isshow);
+		    finish();
+	    }
+    };//multi_window end
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
@@ -4143,7 +4163,7 @@ public class Launcher extends Activity
      * skip some work in that case since we will come back again.
      */
     private boolean waitUntilResume(Runnable run, boolean deletePreviousRunnables) {
-        if (mPaused) {
+        if (mPaused&&(0 == Settings.System.getInt(getContentResolver(), "multi_window_config", 0))) {
             Log.i(TAG, "Deferring update until onResume");
             if (deletePreviousRunnables) {
                 while (mBindOnResumeCallbacks.remove(run)) {
