@@ -59,6 +59,7 @@ import com.android.launcher3.compat.PackageInstallerCompat;
 import com.android.launcher3.compat.PackageInstallerCompat.PackageInstallInfo;
 import com.android.launcher3.compat.UserHandleCompat;
 import com.android.launcher3.compat.UserManagerCompat;
+import com.android.launcher3.NotificationController;
 
 import java.lang.ref.WeakReference;
 import java.net.URISyntaxException;
@@ -145,6 +146,7 @@ public class LauncherModel extends BroadcastReceiver
 
     // < only access in worker thread >
     AllAppsList mBgAllAppsList;
+    List<ResolveInfo> mOldApp = null;
 
     // The lock that must be acquired before referencing any static bg data structures.  Unlike
     // other locks, this one can generally be held long-term because we never expect any of these
@@ -1461,6 +1463,41 @@ public class LauncherModel extends BroadcastReceiver
             }
         }
         return false;
+    }
+    public void startLoaderApp(boolean isLaunching, int synchronousBindPage) {
+        synchronized (mLock) {
+            final PackageManager packageManager = mApp.getContext().getPackageManager();
+            final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+            mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+            List<ResolveInfo> apps = packageManager.queryIntentActivities(mainIntent, 0);
+            ArrayList<String> tmplist = new ArrayList<String>();
+            if(mOldApp == null){
+                for (int i = 0; i < apps.size(); i++) {
+                    ResolveInfo app = apps.get(i);
+                    final String packageName = app.activityInfo.applicationInfo.packageName;
+                    tmplist.add(packageName);
+                }
+            }else{
+                for (int i = 0; i < apps.size(); i++) {
+                    ResolveInfo app = apps.get(i);
+                    boolean hasinsert = false;
+                    for(int j = 0; j < mOldApp.size(); j ++){
+                        ResolveInfo app_j = mOldApp.get(j);
+                        if(app_j.activityInfo.applicationInfo.packageName.equals(app.activityInfo.applicationInfo.packageName) &&
+                            app_j.activityInfo.name.equals(app.activityInfo.name)){
+                            hasinsert = true;
+                            break;
+                        }
+                    }
+                    if(!hasinsert){
+                        tmplist.add(app.activityInfo.applicationInfo.packageName);
+                    }
+                }
+            }
+            enqueuePackageUpdated(new PackageUpdatedTask(PackageUpdatedTask.OP_ADD, (String[])tmplist.toArray(new String[tmplist.size()]), 
+                UserHandleCompat.myUserHandle()));
+            mOldApp = apps;
+        }
     }
 
     /**

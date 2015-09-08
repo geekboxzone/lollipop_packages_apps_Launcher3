@@ -64,8 +64,10 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Process;
 import android.os.StrictMode;
 import android.os.SystemClock;
+import android.os.SystemProperties;
 import android.text.Selection;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -126,6 +128,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import android.os.SystemProperties;
 
 /**
  * Default launcher application.
@@ -216,6 +219,8 @@ public class Launcher extends Activity
 
     public static final String USER_HAS_MIGRATED = "launcher.user_migrated_from_old_data";
 
+    private boolean runOnce = false;
+
     /** The different states that Launcher can be in. */
     private enum State { NONE, WORKSPACE, APPS_CUSTOMIZE, APPS_CUSTOMIZE_SPRING_LOADED };
     private State mState = State.WORKSPACE;
@@ -246,7 +251,11 @@ public class Launcher extends Activity
 
     private final BroadcastReceiver mCloseSystemDialogsReceiver
             = new CloseSystemDialogsIntentReceiver();
+    private final BroadcastReceiver mPreScanFinishReceiver
+            = new PreScanFinishedReceiver();
     private final ContentObserver mWidgetObserver = new AppWidgetResetObserver();
+
+    private boolean mPreScanFinished = false;
 
     private LayoutInflater mInflater;
 
@@ -314,6 +323,7 @@ public class Launcher extends Activity
 
     // Related to the auto-advancing of widgets
     private final int ADVANCE_MSG = 1;
+    private final int LOADER_MSG = ADVANCE_MSG + 1;
     private final int mAdvanceInterval = 20000;
     private final int mAdvanceStagger = 250;
     private long mAutoAdvanceSentTime;
@@ -378,6 +388,7 @@ public class Launcher extends Activity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SystemProperties.set("persist.sys.default_launcher", "com.android.launcher3");
         if (DEBUG_STRICT_MODE) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                     .detectDiskReads()
@@ -450,15 +461,27 @@ public class Launcher extends Activity
             android.os.Debug.stopMethodTracing();
         }
 
-        if (!mRestoring) {
-            if (DISABLE_SYNCHRONOUS_BINDING_CURRENT_PAGE) {
-                // If the user leaves launcher, then we should just load items asynchronously when
-                // they return.
-                mModel.startLoader(true, PagedView.INVALID_RESTORE_PAGE);
-            } else {
-                // We only load the page synchronously if the user rotates (or triggers a
-                // configuration change) while launcher is in the foreground
-                mModel.startLoader(true, mWorkspace.getRestorePage());
+        if ("false".equals(SystemProperties.get("sys.pms.finishscan", "unknown"))) {
+            // Register for prescan finish message
+            IntentFilter prescanFilter = new IntentFilter();
+            prescanFilter.addAction("com.android.prescan.FINISH");
+            registerReceiver(mPreScanFinishReceiver, prescanFilter);
+
+            NotificationController.initNotify(this);
+            NotificationController.showNotify(this);
+
+            mHandler.sendEmptyMessageDelayed(LOADER_MSG, 1);
+        } else {
+            if (!mRestoring) {
+                if (DISABLE_SYNCHRONOUS_BINDING_CURRENT_PAGE) {
+                    // If the user leaves launcher, then we should just load items asynchronously when
+                    // they return.
+                    mModel.startLoader(true, PagedView.INVALID_RESTORE_PAGE);
+                } else {
+                    // We only load the page synchronously if the user rotates (or triggers a
+                    // configuration change) while launcher is in the foreground
+                    mModel.startLoader(true, mWorkspace.getRestorePage());
+                }
             }
         }
 
@@ -1851,7 +1874,9 @@ public class Launcher extends Activity
     private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            if (msg.what == ADVANCE_MSG) {
+            //if (msg.what == ADVANCE_MSG) {
+            switch(msg.what){
+            case ADVANCE_MSG:
                 int i = 0;
                 for (View key: mWidgetsToAdvance.keySet()) {
                     final View v = key.findViewById(mWidgetsToAdvance.get(key).autoAdvanceViewId);
@@ -1866,6 +1891,29 @@ public class Launcher extends Activity
                     i++;
                 }
                 sendAdvanceMessage(mAdvanceInterval);
+                break;
+            case LOADER_MSG:
+                if (!mRestoring && mPreScanFinished) {
+                    mModel.startLoaderApp(true, mWorkspace!=null ? mWorkspace.getCurrentPage() : 0);
+                    mHandler.removeMessages(LOADER_MSG);
+                    if (DISABLE_SYNCHRONOUS_BINDING_CURRENT_PAGE) {
+                        // If the user leaves launcher, then we should just load items asynchronously when
+                        // they return.
+                        mModel.startLoader(true, PagedView.INVALID_RESTORE_PAGE);
+                    } else {
+                        // We only load the page synchronously if the user rotates (or triggers a
+                        // configuration change) while launcher is in the foreground
+                        mModel.startLoader(true, mWorkspace.getRestorePage());
+                    }
+                }else{
+                    mModel.startLoaderApp(true, mWorkspace!=null ? mWorkspace.getCurrentPage() : 0);
+                    if(!runOnce) {
+                        runOnce = true;
+                        mModel.startLoader(true, mWorkspace.getRestorePage());
+                    }
+                    mHandler.sendEmptyMessageDelayed(LOADER_MSG, 5000);
+                }
+                break;
             }
         }
     };
@@ -4032,6 +4080,19 @@ public class Launcher extends Activity
         @Override
         public void onReceive(Context context, Intent intent) {
             closeSystemDialogs();
+        }
+    }
+
+    /**
+     * Receives notifications when system dialogs are to be closed.
+     */
+    private class PreScanFinishedReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mPreScanFinished = true;
+            if(NotificationController.hasNotification == true){
+                NotificationController.clearAllNotify(context);
+            }
         }
     }
 
