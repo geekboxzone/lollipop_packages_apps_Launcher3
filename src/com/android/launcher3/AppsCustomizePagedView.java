@@ -146,6 +146,8 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
         PagedViewWidget.ShortPressListener, LauncherTransitionable {
     static final String TAG = "AppsCustomizePagedView";
     static final public int BG_ALPHA = 0;
+    Resources res = getResources();
+    boolean material = res.getBoolean(R.bool.use_lollipop_animate);
 
     private static Rect sTmpRect = new Rect();
 
@@ -930,7 +932,11 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
 
         Drawable bg = getContext().getResources().getDrawable(R.drawable.quantum_panel);
         if (bg != null) {
-            bg.setAlpha(mPageBackgroundsVisible ? BG_ALPHA: 0);
+            if(material){
+                bg.setAlpha(mPageBackgroundsVisible ? 255: 0);
+            }else{
+                bg.setAlpha(mPageBackgroundsVisible ? BG_ALPHA: 0);
+            }
             layout.setBackground(bg);
         }
 
@@ -943,7 +949,11 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
         for (int i = 0; i < childCount; ++i) {
             Drawable bg = getChildAt(i).getBackground();
             if (bg != null) {
-                bg.setAlpha(visible ? BG_ALPHA : 0);
+                if(material){
+                    bg.setAlpha(visible ? 255 : 0);
+                }else{
+                    bg.setAlpha(visible ? BG_ALPHA : 0);
+                }
             }
         }
     }
@@ -1094,7 +1104,11 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
 
         Drawable bg = getContext().getResources().getDrawable(R.drawable.quantum_panel_dark);
         if (bg != null) {
-            bg.setAlpha(mPageBackgroundsVisible ? BG_ALPHA : 0);
+            if(material){
+                bg.setAlpha(mPageBackgroundsVisible ? 255 : 0);
+            }else{
+                bg.setAlpha(mPageBackgroundsVisible ? BG_ALPHA : 0);
+            }
             layout.setBackground(bg);
         }
         layout.measure(widthSpec, heightSpec);

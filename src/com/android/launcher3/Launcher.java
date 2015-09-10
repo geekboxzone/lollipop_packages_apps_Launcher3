@@ -2773,11 +2773,15 @@ public class Launcher extends Activity
         }
 
         boolean success = startActivitySafely(v, intent, tag);
+        Resources res = getResources();
+        boolean material = res.getBoolean(R.bool.use_lollipop_animate);
         mStats.recordLaunch(intent, shortcut);
 
         if (success && v instanceof BubbleTextView) {
             mWaitingForResume = (BubbleTextView) v;
-            //mWaitingForResume.setStayPressed(true);
+            if(material){
+                mWaitingForResume.setStayPressed(true);
+            }
         }
     }
 
@@ -2988,11 +2992,11 @@ public class Launcher extends Activity
             }
 
             Bundle optsBundle = null;
-	    useLaunchAnimation = false;
+            Resources res = getResources();
+            boolean material = res.getBoolean(R.bool.use_lollipop_animate);
             if (useLaunchAnimation) {
-                ActivityOptions opts = Utilities.isLmpOrAbove() ?
-                        //ActivityOptions.makeCustomAnimation(this, R.anim.task_open_enter, R.anim.no_anim) :
-                        ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getMeasuredWidth(), v.getMeasuredHeight()) :
+                ActivityOptions opts = Utilities.isLmpOrAbove() && material?
+                        ActivityOptions.makeCustomAnimation(this, R.anim.task_open_enter, R.anim.no_anim) :
                         ActivityOptions.makeScaleUpAnimation(v, 0, 0, v.getMeasuredWidth(), v.getMeasuredHeight());
                 optsBundle = opts.toBundle();
             }
@@ -3453,7 +3457,10 @@ public class Launcher extends Activity
 
             revealView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
             layerViews.add(revealView);
-            PropertyValuesHolder panelAlpha = PropertyValuesHolder.ofFloat("alpha", initAlpha, ALL_APPS_ALPHA);
+            PropertyValuesHolder panelAlpha = PropertyValuesHolder.ofFloat("alpha", initAlpha, 1f);
+            if(!material){
+                panelAlpha = PropertyValuesHolder.ofFloat("alpha", initAlpha, ALL_APPS_ALPHA);
+            }
             PropertyValuesHolder panelDriftY =
                     PropertyValuesHolder.ofFloat("translationY", yDrift, 0);
             PropertyValuesHolder panelDriftX =
@@ -3723,9 +3730,14 @@ public class Launcher extends Activity
 
                 if (isWidgetTray || !material) {
                     float finalAlpha = material ? 0.4f : 0f;
-                    revealView.setAlpha(ALL_APPS_ALPHA);
+                    revealView.setAlpha(1f);
                     ObjectAnimator panelAlpha = LauncherAnimUtils.ofFloat(revealView, "alpha",
-                            ALL_APPS_ALPHA, finalAlpha);
+                            1f, finalAlpha);
+                    if(!material){
+                        revealView.setAlpha(ALL_APPS_ALPHA);
+                        panelAlpha = LauncherAnimUtils.ofFloat(revealView, "alpha",
+                                ALL_APPS_ALPHA, finalAlpha);
+                    }
                     panelAlpha.setDuration(material ? revealDuration : 150);
                     panelAlpha.setInterpolator(decelerateInterpolator);
                     panelAlpha.setStartDelay(material ? 0 : itemsAlphaStagger + SINGLE_FRAME_DELAY);
@@ -3798,6 +3810,8 @@ public class Launcher extends Activity
                     fromView.setVisibility(View.GONE);
                     dispatchOnLauncherTransitionEnd(fromView, animated, true);
                     dispatchOnLauncherTransitionEnd(toView, animated, true);
+                    Resources res = getResources();
+                    boolean material = res.getBoolean(R.bool.use_lollipop_animate);
                     if (onCompleteRunnable != null) {
                         onCompleteRunnable.run();
                     }
@@ -3818,7 +3832,11 @@ public class Launcher extends Activity
                     if (page != null) {
                         page.setTranslationX(0);
                         page.setTranslationY(0);
-                        page.setAlpha(ALL_APPS_ALPHA);
+                        if(material){
+                            page.setAlpha(1);
+                        }else{
+                            page.setAlpha(ALL_APPS_ALPHA);
+                        }
                     }
                     content.setCurrentPage(content.getNextPage());
 

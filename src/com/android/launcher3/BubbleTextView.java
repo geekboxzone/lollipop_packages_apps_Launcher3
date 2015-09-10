@@ -200,6 +200,8 @@ public class BubbleTextView extends TextView {
         // Call the superclass onTouchEvent first, because sometimes it changes the state to
         // isPressed() on an ACTION_UP
         boolean result = super.onTouchEvent(event);
+        Resources res = getResources();
+        boolean material = res.getBoolean(R.bool.use_lollipop_animate);
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -212,9 +214,11 @@ public class BubbleTextView extends TextView {
 
                 mLongPressHelper.postCheckForLongPress();
 
-                Animation an = new ScaleAnimation(0.75f, 1.0f, 0.75f, 1.0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                an.setDuration(150);
-                this.startAnimation(an);
+                if(!material){
+                    Animation an = new ScaleAnimation(0.75f, 1.0f, 0.75f, 1.0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                    an.setDuration(150);
+                    this.startAnimation(an);
+                }
 
                 break;
             case MotionEvent.ACTION_CANCEL:
