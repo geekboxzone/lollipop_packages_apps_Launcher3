@@ -130,7 +130,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import android.os.SystemProperties;
 
-import android.provider.Settings;;
+import android.provider.Settings;
 
 /**
  * Default launcher application.
@@ -4664,6 +4664,10 @@ public class Launcher extends Activity
 
     private boolean canRunNewAppsAnimation() {
         long diff = System.currentTimeMillis() - mDragController.getLastGestureUpTime();
+         //huangjc:multi_window
+            if(0 != Settings.System.getInt(getContentResolver(), "multi_window_config", 0))
+              return true;
+        //multi_window end
         return diff > (NEW_APPS_ANIMATION_INACTIVE_TIMEOUT_SECONDS * 1000);
     }
 

@@ -77,6 +77,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import android.provider.Settings;
 
 /**
  * Maintains in-memory state of the Launcher. It is expected that there should be only one
@@ -440,7 +441,9 @@ public class LauncherModel extends BroadcastReceiver
                         // Add this icon to the db, creating a new page if necessary.  If there
                         // is only the empty page then we just add items to the first page.
                         // Otherwise, we add them to the next pages.
-                        int startSearchPageIndex = workspaceScreens.isEmpty() ? 0 : 1;
+              //huangjc:multi_window
+                        int startSearchPageIndex = (workspaceScreens.isEmpty()||(0 != Settings.System.getInt(context.getContentResolver(), "multi_window_config", 0))) ? 0 : 1;
+              //multi_window end
                         Pair<Long, int[]> coords = LauncherModel.findNextAvailableIconSpace(context,
                                 name, launchIntent, startSearchPageIndex, workspaceScreens);
                         if (coords == null) {
@@ -880,7 +883,10 @@ public class LauncherModel extends BroadcastReceiver
             new String[] { title, intentWithPkg.toUri(0), intentWithoutPkg.toUri(0), userSerial },
             null);
         try {
-            return c.moveToFirst();
+            boolean isExists = c.moveToFirst();
+            if(0 != Settings.System.getInt(context.getContentResolver(), "multi_window_config", 0))
+                    return false;
+            return isExists;
         } finally {
             c.close();
         }
