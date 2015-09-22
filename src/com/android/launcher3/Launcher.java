@@ -2060,7 +2060,11 @@ public class Launcher extends Activity
 
     @Override
     public void onRestoreInstanceState(Bundle state) {
-        super.onRestoreInstanceState(state);
+        //super.onRestoreInstanceState(state);
+        try {
+            super.onRestoreInstanceState(state);
+        }catch (Exception e) {}
+            state=null;
         for (int page: mSynchronouslyBoundPages) {
             mWorkspace.restoreInstanceStateForChild(page);
         }
