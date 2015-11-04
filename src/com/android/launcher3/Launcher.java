@@ -390,7 +390,7 @@ public class Launcher extends Activity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        SystemProperties.set("persist.sys.default_launcher", "com.android.launcher3");
+        //SystemProperties.set("persist.sys.default_launcher", "com.android.launcher3");
         if (DEBUG_STRICT_MODE) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                     .detectDiskReads()
