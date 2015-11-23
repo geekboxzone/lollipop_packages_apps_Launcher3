@@ -3302,7 +3302,8 @@ public class Launcher extends Activity
     }
 
     private void setWorkspaceBackground(boolean workspace) {
-        mLauncherView.setBackground(workspace ?
+        boolean isMultiMode = (0 != Settings.System.getInt(getContentResolver(), "multi_window_config", 0));
+        mLauncherView.setBackground(workspace&&!isMultiMode ?
                 mWorkspaceBackgroundDrawable : null);
     }
 
